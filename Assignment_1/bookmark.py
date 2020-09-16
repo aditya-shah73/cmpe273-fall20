@@ -8,12 +8,9 @@ import qrcode
 app = Flask(__name__)
 dashboard.bind(app)
 
-id = uuid.uuid1()
-
 #create a singleton instance for db
 def db_open_connection():
     mydict = SqliteDict('bookmark.db', autocommit=True)
-    a = dict(mydict)
     return mydict
 
 @app.route('/')
@@ -23,24 +20,26 @@ def home():
 # Fix write to db issue and return 200ok
 @app.route('/api/bookmarks', methods=['POST'])
 def add_bookmarks():
+    import pdb; pdb.set_trace()
     if not request.json:
         abort(400)
     mydict = db_open_connection()
     bookmark = {
-        'id' : str(id.int),
+        'id' : str(uuid.uuid1().int),
         'name' : request.json['name'],
         'url' : request.json['url'],
         'description' : request.json['description']
     }
-    mydict[''] = bookmark
-    x = dict(mydict)
-    print(x)
+    mydict['data'] = bookmark
+    # x = dict(mydict)
+    # print(x)
     mydict.close()
     return {'id': bookmark['id']}
 
 #return 200ok
 @app.route('/api/bookmarks/<int:bookmark_id>')
 def get_bookmarks(bookmark_id):
+    import pdb;pdb.set_trace()
     if not bookmark_id:
         abort(404)
     mydict = db_open_connection()
@@ -63,7 +62,7 @@ def generate_qrcode(bookmark_id):
                 filename = 'qrcodes/test_' + str(bookmark_id) + '.png'
                 img = qrcode.make(data)
                 img.save(filename)
-    return "Code generated"
+    return render_template('qrcode.html')
 
 #create a html page for 404 error handling
 @app.errorhandler(404)

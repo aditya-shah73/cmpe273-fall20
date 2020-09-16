@@ -11,6 +11,8 @@ pillow = "*"
 qrcode = "*"
 flask-monitoringdashboard = "*"
 sqlitedict = "*"
+faker = "*"
+jinja2 = "*"
 
 [requires]
 python_version = "3.8"
