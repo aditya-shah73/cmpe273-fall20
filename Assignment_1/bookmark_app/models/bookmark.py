@@ -25,9 +25,10 @@ class Bookmark(object):
     def build_qrcode(self, bookmark_id):
         data = self.find_bookmark_id(bookmark_id)
         if data is not None:
-            filename = self.cwd + '/qrcodes/test_' + str(bookmark_id) + '.png'
-            img = qrcode.make(data)
-            img.save(filename)
+            filename = '/static/qrcodes/test_' + str(bookmark_id) + '.png'
+            complete_filename = self.cwd + '/bookmark_app/static/qrcodes/test_' + str(bookmark_id) + '.png'
+            img = qrcode.make(data['url'])
+            img.save(complete_filename)
         return filename
 
     def find_bookmark_id_from_payload(self, payload):

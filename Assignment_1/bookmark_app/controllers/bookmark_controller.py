@@ -31,7 +31,7 @@ def add_bookmarks():
         return {'id': id}
     else:
         id = bookmark_obj.find_bookmark_id_from_payload(bookmark)
-        # DO we need to tell if duplicate data was added 
+        # DO we need to tell if duplicate data was added
         return {'id': id}
 
 @app.route('/api/bookmarks/<int:bookmark_id>')
@@ -50,7 +50,7 @@ def generate_qrcode(bookmark_id):
     filename = bookmark_obj.build_qrcode(bookmark_id)
     if filename is not None:
         print(filename)
-    return render_template('qrcode.html')
+    return render_template('qrcode.html', value = filename)
 
 
 #create a html page for 404 error handling
