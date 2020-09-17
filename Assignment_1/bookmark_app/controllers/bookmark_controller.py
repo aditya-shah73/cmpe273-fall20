@@ -26,7 +26,6 @@ def add_bookmarks():
         mydict_data = mydict.get('data')
         mydict_data[id] = bookmark
         mydict['data'] = mydict_data
-        import pdb; pdb.set_trace()
         mydict.close()
         return {'id': id}
     else:
@@ -34,14 +33,31 @@ def add_bookmarks():
         # DO we need to tell if duplicate data was added
         return {'id': id}
 
-@app.route('/api/bookmarks/<int:bookmark_id>')
+@app.route('/api/bookmarks/<int:bookmark_id>', methods=['GET', 'DELETE'])
 def get_bookmarks(bookmark_id):
-    if not bookmark_id:
+    if request.method == 'GET':
+        if not bookmark_id:
+            abort(404)
+        value = bookmark_obj.find_bookmark_id(bookmark_id)
+        if value is not None:
+            return value
         abort(404)
-    value = bookmark_obj.find_bookmark_id(bookmark_id)
-    if value is not None:
-        return value
-    abort(404)
+    elif request.method == 'DELETE':
+        if not bookmark_id:
+            abort(404)
+        mydict = bookmark_obj.db_open_connection()
+        if str(bookmark_id) not in mydict['data'].keys():
+            print(bookmark_id)
+            print(mydict['data'].keys())
+            abort(404)
+        else:
+            delete_value = bookmark_obj.find_bookmark_id(bookmark_id)
+            mydict_data = mydict.get('data')
+            mydict_data.pop(str(bookmark_id))
+            mydict['data'] = mydict_data
+            print(mydict['data'])
+            mydict.close()
+            return {'deleted_key': bookmark_id}
 
 @app.route('/api/bookmarks/<int:bookmark_id>/qrcode')
 def generate_qrcode(bookmark_id):
@@ -51,6 +67,13 @@ def generate_qrcode(bookmark_id):
     if filename is not None:
         print(filename)
     return render_template('qrcode.html', value = filename)
+
+#To be implemented 
+@app.route('/api/bookmarks/<int:bookmark_id>/stats')
+def get_bookmarks_count(bookmark_id):
+    if not bookmark_id:
+        abort(404)
+    return {'id': bookmark_id}
 
 
 #create a html page for 404 error handling
