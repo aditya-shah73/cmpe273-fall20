@@ -45,3 +45,10 @@ class Bookmark(object):
         mydict_data.pop(str(bookmark_id))
         bookmark_dict['data'] = mydict_data
         bookmark_dict.close()
+
+    def insert_bookmark(self, id, payload):
+        bookmark_dict = self.db_open_connection()
+        mydict_data = bookmark_dict.get('data')
+        mydict_data[id] = payload
+        bookmark_dict['data'] = mydict_data
+        bookmark_dict.close()

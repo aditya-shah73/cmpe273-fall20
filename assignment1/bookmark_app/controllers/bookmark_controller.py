@@ -24,11 +24,7 @@ def add_bookmarks():
         'counts' : 0
     }
     if not bookmark_obj.find_url(bookmark['url']):
-        print('URL not found in db')
-        mydict_data = mydict.get('data')
-        mydict_data[id] = bookmark
-        mydict['data'] = mydict_data
-        mydict.close()
+        bookmark_obj.insert_bookmark(id, bookmark)
         return {'id': id}
     else:
         abort(400)
@@ -60,8 +56,6 @@ def generate_qrcode(bookmark_id):
     if not bookmark_id:
         abort(404)
     filename = bookmark_obj.build_qrcode(bookmark_id)
-    if filename is not None:
-        print(filename)
     return render_template('qrcode.html', value = filename)
 
 
@@ -73,10 +67,10 @@ def get_bookmarks_count(bookmark_id):
     return {'id': bookmark_id}
 
 
-#create a html page for 404 error handling
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': '404 Not found'}), 404)
+
 
 @app.errorhandler(400)
 def bad_request(error):
