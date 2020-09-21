@@ -8,9 +8,6 @@ class Bookmark(object):
     cwd = os.getcwd()
     print(cwd)
 
-    def show_string(self):
-        print("Hello world")
-
     def db_open_connection(self):
         bookmark_dict = SqliteDict('bookmark.db', autocommit=True)
         return bookmark_dict
@@ -19,8 +16,11 @@ class Bookmark(object):
         bookmark_dict = self.db_open_connection()
         for key, value in bookmark_dict.iteritems():
             if(str(bookmark_id) in value.keys()):
+                response_dict = value[str(bookmark_id)]
+                response_dict['id'] = str(bookmark_id)
+                response_dict.pop('counts')
                 return value[str(bookmark_id)]
-        return None #change to false
+        return None
 
     def build_qrcode(self, bookmark_id):
         data = self.find_bookmark_id(bookmark_id)

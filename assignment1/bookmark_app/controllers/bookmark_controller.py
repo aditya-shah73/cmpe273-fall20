@@ -10,6 +10,7 @@ bookmark_obj = Bookmark()
 def home():
     return render_template('index.html')
 
+
 @app.route('/api/bookmarks', methods=['POST'])
 def add_bookmarks():
     if not request.json:
@@ -32,6 +33,7 @@ def add_bookmarks():
         id = bookmark_obj.find_bookmark_id_from_payload(bookmark)
         # DO we need to tell if duplicate data was added
         return {'id': id}
+
 
 @app.route('/api/bookmarks/<int:bookmark_id>', methods=['GET', 'DELETE'])
 def get_bookmarks(bookmark_id):
@@ -59,6 +61,7 @@ def get_bookmarks(bookmark_id):
             mydict.close()
             return {'deleted_key': bookmark_id}
 
+
 @app.route('/api/bookmarks/<int:bookmark_id>/qrcode')
 def generate_qrcode(bookmark_id):
     if not bookmark_id:
@@ -68,7 +71,8 @@ def generate_qrcode(bookmark_id):
         print(filename)
     return render_template('qrcode.html', value = filename)
 
-#To be implemented 
+
+#To be implemented
 @app.route('/api/bookmarks/<int:bookmark_id>/stats')
 def get_bookmarks_count(bookmark_id):
     if not bookmark_id:
