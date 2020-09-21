@@ -38,3 +38,10 @@ class Bookmark(object):
             if url == value['url']:
                 return True
         return False
+
+    def delete_url(self, bookmark_id):
+        bookmark_dict = self.db_open_connection()
+        mydict_data = bookmark_dict.get('data')
+        mydict_data.pop(str(bookmark_id))
+        bookmark_dict['data'] = mydict_data
+        bookmark_dict.close()

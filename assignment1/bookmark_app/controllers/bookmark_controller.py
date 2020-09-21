@@ -48,16 +48,11 @@ def get_bookmarks(bookmark_id):
             abort(404)
         mydict = bookmark_obj.db_open_connection()
         if str(bookmark_id) not in mydict['data'].keys():
-            print(bookmark_id)
-            print(mydict['data'].keys())
             abort(404)
         else:
             delete_value = bookmark_obj.find_bookmark_id(bookmark_id)
-            mydict_data = mydict.get('data')
-            mydict_data.pop(str(bookmark_id))
-            mydict['data'] = mydict_data
-            mydict.close()
-            return {'deleted_key': bookmark_id}
+            bookmark_obj.delete_url(bookmark_id)
+            return {'deleted_key': bookmark_id}, 204
 
 
 @app.route('/api/bookmarks/<int:bookmark_id>/qrcode')
