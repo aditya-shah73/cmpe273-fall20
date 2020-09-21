@@ -42,7 +42,7 @@ def get_bookmarks(bookmark_id):
         value = bookmark_obj.find_bookmark_id(bookmark_id)
         if value is not None:
             return value
-        abort(400)
+        abort(404)
     elif request.method == 'DELETE':
         if not bookmark_id:
             abort(404)
