@@ -2,6 +2,7 @@ import os
 import qrcode
 
 from sqlitedict import SqliteDict
+
 #Raise errors in final iteration
 class Bookmark(object):
 
@@ -31,11 +32,9 @@ class Bookmark(object):
             img.save(complete_filename)
         return filename
 
-    def find_bookmark_id_from_payload(self, payload):
+    def find_url(self, url):
         bookmark_dict = self.db_open_connection()
-
         for key, value in bookmark_dict['data'].items():
-            if payload == value:
-                import pdb; pdb.set_trace()
-                return key
+            if url == value['url']:
+                return True
         return False
