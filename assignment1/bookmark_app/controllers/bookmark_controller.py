@@ -1,7 +1,7 @@
 import uuid
 
 from bookmark_app import app
-from flask import render_template, request, jsonify, make_response, abort
+from flask import render_template, request, jsonify, make_response, abort, Response
 from bookmark_app.models.bookmark import Bookmark
 
 bookmark_obj = Bookmark()
@@ -59,12 +59,29 @@ def generate_qrcode(bookmark_id):
     return render_template('qrcode.html', value = filename)
 
 
-#To be implemented
 @app.route('/api/bookmarks/<int:bookmark_id>/stats')
 def get_bookmarks_count(bookmark_id):
     if not bookmark_id:
         abort(404)
-    return {'id': bookmark_id}
+    value = bookmark_obj.find_bookmark_id(bookmark_id, increment_count = False)
+    if value is None:
+        abort(404)
+    e_tag = request.headers.get('ETag')
+    current_count = bookmark_obj.get_counts_for_bookmark(bookmark_id)
+    if e_tag:
+        etag_list = [tag.strip() for tag in e_tag.split(',')]
+        if str(current_count) in etag_list:
+            r = Response(content_type = None, status=304)
+            r.headers.add('ETag', current_count)
+            return r
+        else:
+            response = jsonify({'count': current_count})
+            response.headers.set('ETag', str(current_count))
+            return response
+    else:
+        response = jsonify({'count': current_count})
+        response.headers.set('ETag', str(current_count))
+        return response
 
 
 @app.errorhandler(404)
