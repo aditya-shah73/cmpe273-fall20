@@ -23,7 +23,7 @@ def generate_data():
             data[id] = {'name': fake.user_name(),
                         'url': fake.url(),
                         'description' : fake.sentence(),
-                        'counts': 0}
+                        'count': 0}
         json.dump(data, outfile)
 
 def generate_sqlite_data(json_path):

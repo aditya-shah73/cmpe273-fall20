@@ -15,11 +15,17 @@ class Bookmark(object):
 
     def find_bookmark_id(self, bookmark_id):
         bookmark_dict = self.db_open_connection()
+        mydict_data = bookmark_dict.get('data')
         for key, value in bookmark_dict.iteritems():
             if(str(bookmark_id) in value.keys()):
                 response_dict = value[str(bookmark_id)]
+                response_dict['count'] += 1
+                mydict_data[str(bookmark_id)] = response_dict
+                bookmark_dict['data'] = mydict_data
+                print(mydict_data)
+                bookmark_dict.close()
                 response_dict['id'] = str(bookmark_id)
-                response_dict.pop('counts')
+                response_dict.pop('count')
                 return value[str(bookmark_id)]
         return None
 

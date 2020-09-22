@@ -21,7 +21,7 @@ def add_bookmarks():
         'name' : request.json['name'],
         'url' : request.json['url'],
         'description' : request.json['description'],
-        'counts' : 0
+        'count' : 0
     }
     if not bookmark_obj.find_url(bookmark['url']):
         bookmark_obj.insert_bookmark(id, bookmark)
