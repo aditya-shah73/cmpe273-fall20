@@ -1,6 +1,7 @@
 import os
 import qrcode
 
+from bookmark_app import app
 from sqlitedict import SqliteDict
 
 class Bookmark(object):
@@ -20,6 +21,8 @@ class Bookmark(object):
                 response_dict = value[str(bookmark_id)]
                 if increment_count:
                     response_dict['count'] += 1
+                    # Updating the simple cache
+                    app.cache.set(str(bookmark_id), response_dict['count'])
                 mydict_data[str(bookmark_id)] = response_dict
                 bookmark_dict['data'] = mydict_data
                 print(mydict_data)
@@ -64,3 +67,4 @@ class Bookmark(object):
         for key, value in bookmark_dict.iteritems():
             if(str(bookmark_id) in value.keys()):
                 return value[str(bookmark_id)]['count']
+        return False

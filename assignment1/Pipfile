@@ -13,6 +13,7 @@ flask-monitoringdashboard = "*"
 sqlitedict = "*"
 faker = "*"
 jinja2 = "*"
+flask-caching = "*"
 
 [requires]
 python_version = "3.8"

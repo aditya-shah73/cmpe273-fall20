@@ -62,12 +62,25 @@ def generate_qrcode(bookmark_id):
 @app.route('/api/bookmarks/<int:bookmark_id>/stats')
 def get_bookmarks_count(bookmark_id):
     if not bookmark_id:
-        abort(404)
+        abort(400)
     value = bookmark_obj.find_bookmark_id(bookmark_id, increment_count = False)
     if value is None:
         abort(404)
+    bookmark_in_cache = app.cache.get(str(bookmark_id))
+
+    current_count = None
+    if bookmark_in_cache:
+        print("Found in cache!!")
+        current_count = bookmark_in_cache
+    else:
+        print("Found in DB!!")
+        current_count = bookmark_obj.get_counts_for_bookmark(bookmark_id)
+        if not current_count:
+            print("Not Found in cache and DB")
+            abort(404)
+        else:
+            app.cache.set(str(bookmark_id), current_count)
     e_tag = request.headers.get('ETag')
-    current_count = bookmark_obj.get_counts_for_bookmark(bookmark_id)
     if e_tag:
         etag_list = [tag.strip() for tag in e_tag.split(',')]
         if str(current_count) in etag_list:
