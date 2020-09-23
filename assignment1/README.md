@@ -93,6 +93,8 @@ _Response_
 
 Return QR Code PNG image. To access the QR Code, open the URL in the browser
 
+![Screen Shot 2020-09-23 at 10 50 13](https://user-images.githubusercontent.com/9063088/94050081-a132da00-fd8a-11ea-8545-5ce9ff757087.png)
+
 ### DELETE /api/bookmarks/1238479123749123750912734
 
 204 No Content
