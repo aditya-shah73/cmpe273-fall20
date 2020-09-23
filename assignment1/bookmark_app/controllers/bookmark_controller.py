@@ -25,7 +25,7 @@ def add_bookmarks():
     }
     if not bookmark_obj.find_url(bookmark['url']):
         bookmark_obj.insert_bookmark(id, bookmark)
-        return {'id': id}
+        return {'id': id}, 201
     else:
         abort(400)
 
