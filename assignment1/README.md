@@ -23,7 +23,11 @@ Once the server starts open http://0.0.0.0:5000/ on a web browser to get the hom
 
 ## API Endpoints
 
-### GET /api/bookmarks/dashboard
+### GET /
+Application home page. Open it on the browser
+![Screen Shot 2020-09-23 at 10 54 12](https://user-images.githubusercontent.com/9063088/94050461-261df380-fd8b-11ea-9479-010b14a9f2d2.png)
+
+### GET /dashboard
 
 Open this URL on the browser to get the Flask Monitoring Dashboard.
 
