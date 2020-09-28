@@ -10,28 +10,42 @@ with open(sys.argv[1], 'r') as file:
 
 def http_client(config):
     print("Making a HTTP Client Request")
+    # import pdb; pdb.set_trace()
     if config['method'] == 'GET':
-        r = requests.get(config['url'])
-        return r
+        print(config['url'])
+        if(requests.head(config['url']).status_code == 200):
+            response = requests.get(config['url'])
+            return response
     else:
-        return 'Enter a valid HTTP Request Method'
+        print('Enter a valid HTTP Request Method')
+        return None
 
 
-def eval_condition(data, condition):
-    return True
+def evaluate_condition(response, condition):
+    print('Evaluating the conditions')
+    if(condition['if']['equal']['left'] == 'http.response.code'):
+        if(condition['if']['equal']['right'] == response.status_code):
+            if(condition['then']['action'] == 'print'):
+                if(condition['then']['action'] == 'print'):
+                    print(response.content)
+                    # print(response.status_code)
+    elif(condition['else']['action'] == 'print'):
+        print(condition['else']['data'])
 
 
 def run_step(step):
     print("Run the steps from the YAML file")
-    if step == 'HTTP_CLIENT':
+    if step['type'] == 'HTTP_CLIENT':
         config = {
-            'method' : 'GET',
-            'url': 'https://api.github.com/events'
+            'method' : step['method'],
+            'url': step['outbound_url']
         }
         response = http_client(config)
-        # eval_condition(response, condition)
-        return response
-
+        if response:
+            evaluate_condition(response, step['condition'])
+        else:
+            print("Please enter a valid URL")
+        # return response #dont return the response here
 
 def set_scheduler():
     sec = 10
@@ -40,17 +54,12 @@ def set_scheduler():
 
 def parse_yaml(document):
     print('Parsing the input YAML file')
-    id = document['Step']['id']
-    type = document['Step']['type']
-    method = document['Step']['method']
-    url = document['Step']['outbound_url']
-    condition = document['Step']['condition']
+    step = document['Step']
     scheduler = document['Scheduler']
-    result = run_step(type)
-    return result
+    run_step(step)
 
 
-print(parse_yaml(document))
+parse_yaml(document)
 
 # set_scheduler()
 # while True:

@@ -2,7 +2,7 @@ Step:
  id: 1
  type: HTTP_CLIENT
  method: GET
- outbound_url: http://requestbin.com/
+ outbound_url: http://www.google.com
  condition:
   if:
     equal:
