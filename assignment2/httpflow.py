@@ -1,3 +1,4 @@
+import os
 import requests
 import sys
 import schedule
@@ -19,8 +20,11 @@ from low_code_app.yamlparser import YamlParser
 if __name__ == "__main__":
 
     yaml_file = sys.argv[1]
-    yaml_parser = YamlParser(sys.argv[1])
-    step = yaml_parser.get_step()
-    scheduler = yaml_parser.get_scheduler()
-    scheduler_obj = Scheduler(scheduler)
-    scheduler_obj.run_step(step)
+    if os.path.isfile(yaml_file):
+        yaml_parser = YamlParser(sys.argv[1])
+        step = yaml_parser.get_step()
+        scheduler = yaml_parser.get_scheduler()
+        scheduler_obj = Scheduler(scheduler)
+        scheduler_obj.run_step(step)
+    else:
+        print('Please enter a valid file')

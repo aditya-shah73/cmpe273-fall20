@@ -11,7 +11,6 @@ class Scheduler:
         try:
             print("Making a HTTP Client Request")
             print(config)
-            # import pdb; pdb.set_trace()
             if config['method'] == 'GET':
                 print(config['url'])
                 response = requests.get(config['url'])
@@ -39,8 +38,8 @@ class Scheduler:
             if(condition['if']['equal']['right'] == response.status_code):
                 if(condition['then']['action'] == 'print'):
                     if(condition['then']['data'] == 'http.response.body'):
-                        print(response.content)
-                        # print(response.status_code)
+                        # print(response.content)
+                        print(response.status_code)
         elif(condition['else']['action'] == 'print'):
             print(condition['else']['data'])
 

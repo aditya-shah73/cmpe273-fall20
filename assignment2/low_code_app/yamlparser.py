@@ -4,7 +4,6 @@ import yaml
 class YamlParser:
 
     def __init__(self, filepath):
-        #handle if file doesnt exist
         with open(filepath, 'r') as file:
             self.document = yaml.full_load(file)
 
