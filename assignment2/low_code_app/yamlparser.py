@@ -1,5 +1,6 @@
 import sys
 import yaml
+import requests
 
 class YamlParser:
 
@@ -7,11 +8,79 @@ class YamlParser:
         with open(filepath, 'r') as file:
             self.document = yaml.full_load(file)
 
-    def get_step(self):
-        return self.document['Step']
+    def get_steps(self):
+        return self.document['Steps']
 
     def get_scheduler(self):
         return self.document['Scheduler']
+
+    def test(self):
+        print('$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        print("This is from the scheduler")
+        print('$$$$$$$$$$$$$$$$$$$$$$$$$$')
+
+    def print_action(self, data, response):
+        print('Printing the actions')
+        if data != 'Error':
+            print(data)
+        else:
+            print('Error')
+        print('##################################')
+
+    def http_client(self, config):
+        try:
+            print("Making a HTTP Client Request")
+            print(config)
+            if config['method'] == 'GET':
+                print(config['url'])
+                response = requests.get(config['url'])
+                return response
+            elif config['method'] == 'POST':
+                response = requests.post(config['url'], data={'key':'value'})
+                return response
+            elif config['method'] == 'PUT':
+                requests.put(config['url'], data={'key':'value'})
+                return response
+            elif config['method'] == 'DELETE':
+                requests.delete(config['url'])
+                return response
+            elif config['method'] == 'HEAD':
+                response = requests.head(config['url'])
+                return response
+            print('##################################')
+        except:
+            print('Error')
+            print('##################################')
+            return None
+
+
+    def evaluate_condition(self, response, condition):
+        print('Evaluating the conditions')
+        if(condition['if']['equal']['left'] == 'http.response.code' and condition['if']['equal']['right'] == response.status_code):
+            if('print' in condition['then']['action']):
+                self.print_action(condition['then']['data'], response)
+            elif('invoke' in condition['then']['action']):
+                print('Invoke something else') #Need to implement this
+        elif(condition['else']['action'] == '::print'):
+            print(condition['else']['action'])
+            self.print_action(condition['else']['data'], response)
+        print('##################################')
+
+
+    def run_steps(self, steps):
+        print("Run the steps from the YAML file")
+        for i in range(len(steps)):
+            step = steps[i][i+1]
+            if step['type'] == 'HTTP_CLIENT':
+                config = {
+                    'method' : step['method'],
+                    'url': step['outbound_url']
+                    }
+            print(step)
+            print('##################################')
+            response = self.http_client(config)
+            if response:
+                self.evaluate_condition(response, step['condition'])
 
 
 # import yaml
