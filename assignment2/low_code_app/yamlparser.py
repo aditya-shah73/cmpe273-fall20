@@ -8,25 +8,24 @@ class YamlParser:
         with open(filepath, 'r') as file:
             self.document = yaml.full_load(file)
 
+
     def get_steps(self):
         return self.document['Steps']
+
 
     def get_scheduler(self):
         return self.document['Scheduler']
 
-    def test(self):
-        print('$$$$$$$$$$$$$$$$$$$$$$$$$$')
-        print("This is from the scheduler")
-        print('$$$$$$$$$$$$$$$$$$$$$$$$$$')
 
     def print_action(self, data, response):
         print('Printing the actions')
         if data != 'Error' and 'header' in data:
             header_field = data.split('.')[-1]
-            print(response.headers[header_field])
+            print(data + ' for the request is: ' + response.headers[header_field])
         else:
             print('Error')
         print('##################################')
+
 
     def http_client(self, config):
         try:
@@ -53,6 +52,25 @@ class YamlParser:
             print('##################################')
             return None
 
+    def invoke_step(self, step_number, data):
+        steps = self.get_steps()
+        step = steps[step_number - 1][step_number]
+        if (step['type'] == 'HTTP_CLIENT' and 'data' not in step['outbound_url']):
+            config = {
+                'method' : step['method'],
+                'url': step['outbound_url']
+                }
+        else:
+            config = {
+                'method' : step['method'],
+                'url' : data
+            }
+        print('##############THIS IS INVOKE STEP####################')
+        # print(step)
+        response = self.http_client(config)
+        if response:
+            self.evaluate_condition(response, step['condition'])
+
 
     def evaluate_condition(self, response, condition):
         print('Evaluating the conditions')
@@ -61,8 +79,8 @@ class YamlParser:
                 self.print_action(condition['then']['data'], response)
             elif('invoke' in condition['then']['action']):
                 step_number = condition['then']['action'].split(':')[-1]
-                print('$$$$$$$$$$$$$$$$$$$$$$$$$$')
-                print(step_number)
+                data = condition['then']['data']
+                self.invoke_step(int(step_number), data)
         elif(condition['else']['action'] == '::print'):
             self.print_action(condition['else']['data'], response)
 
@@ -76,11 +94,12 @@ class YamlParser:
                     'method' : step['method'],
                     'url': step['outbound_url']
                     }
-            print(step)
+            # print(step)
             print('##################################')
-            response = self.http_client(config)
-            if response:
-                self.evaluate_condition(response, step['condition'])
+            if 'data' not in config['url']:
+                response = self.http_client(config)
+                if response:
+                    self.evaluate_condition(response, step['condition'])
 
 
 # import yaml

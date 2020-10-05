@@ -14,6 +14,5 @@ if __name__ == "__main__":
         scheduler_obj = Scheduler(yaml_parser)
         scheduler_obj.set_scheduler()
         scheduler_obj.parse_cron()
-
     else:
         print('Please enter a valid file')

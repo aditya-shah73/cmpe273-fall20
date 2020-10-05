@@ -23,6 +23,7 @@ class Scheduler:
 
 
     def set_scheduler(self):
+        # self.testing()
         schedule.every(5).seconds.do(self.testing)
         while True:
             schedule.run_pending()
