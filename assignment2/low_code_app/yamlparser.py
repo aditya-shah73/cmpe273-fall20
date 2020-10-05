@@ -21,8 +21,9 @@ class YamlParser:
 
     def print_action(self, data, response):
         print('Printing the actions')
-        if data != 'Error':
-            print(data)
+        if data != 'Error' and 'header' in data:
+            header_field = data.split('.')[-1]
+            print(response.headers[header_field])
         else:
             print('Error')
         print('##################################')
@@ -31,8 +32,8 @@ class YamlParser:
         try:
             print("Making a HTTP Client Request")
             print(config)
+            print('##################################')
             if config['method'] == 'GET':
-                print(config['url'])
                 response = requests.get(config['url'])
                 return response
             elif config['method'] == 'POST':
@@ -47,9 +48,8 @@ class YamlParser:
             elif config['method'] == 'HEAD':
                 response = requests.head(config['url'])
                 return response
-            print('##################################')
         except:
-            print('Error')
+            print('Error making the API request')
             print('##################################')
             return None
 
@@ -60,11 +60,11 @@ class YamlParser:
             if('print' in condition['then']['action']):
                 self.print_action(condition['then']['data'], response)
             elif('invoke' in condition['then']['action']):
-                print('Invoke something else') #Need to implement this
+                step_number = condition['then']['action'].split(':')[-1]
+                print('$$$$$$$$$$$$$$$$$$$$$$$$$$')
+                print(step_number)
         elif(condition['else']['action'] == '::print'):
-            print(condition['else']['action'])
             self.print_action(condition['else']['data'], response)
-        print('##################################')
 
 
     def run_steps(self, steps):

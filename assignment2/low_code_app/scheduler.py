@@ -1,22 +1,29 @@
 import requests
+import schedule
 import time
 
 
 class Scheduler:
 
-    def __init__(self, scheduler, yaml_parser):
-        self.scheduler = scheduler
-        # self.yaml_parser = yaml_parser
-        yaml_parser.test()
+    def __init__(self, yaml_parser):
+        self.yaml_parser = yaml_parser
 
-    # def testing(self):
-    #     yaml_parser.test()
+    def parse_cron(self):
+        schedule = self.yaml_parser.get_scheduler()
+        print(schedule)
+        cron = schedule['when']
+        x = cron.split(" ")
+        print(x)
 
-    # def set_scheduler():
-    #     sec = 10
-    #     schedule.every(sec).seconds.do(http_client)
-    #
-    # set_scheduler()
-    # while True:
-    #     schedule.run_pending()
-    #     time.sleep(1)
+
+    def testing(self):
+        print('=====================================================================================================================')
+        steps = self.yaml_parser.get_steps()
+        self.yaml_parser.run_steps(steps)
+
+
+    def set_scheduler(self):
+        schedule.every(5).seconds.do(self.testing)
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
