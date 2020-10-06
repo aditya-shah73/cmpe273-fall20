@@ -20,27 +20,27 @@ class Scheduler:
             if min == '*':
                 print('Running every minute')
                 schedule.every().minute.do(self.run)
-            elif int(min) >= 0 and int(min) < 10:
+            elif int(min) >= 0 and int(min) < 60:
                 print('Running every ' + min + ' minutes')
                 schedule.every(int(min)).minutes.do(self.run)
             else:
-                print('Enter a valid time')
+                print('Enter a valid minute in the range 0-60')
                 return
         else:
             if min == '*':
                 min = '00'
             elif int(min) >= 0 and int(min) < 10:
                 min = '0' + min
-            else:
-                print('Enter a valid time')
+            elif int(min) < 0 or int(min) > 60:
+                print('Enter a valid minute in the range 0-60')
                 return
 
             if hour == '*':
                 hour = '00'
             elif int(hour) >= 0 and int(hour) < 10:
                 hour = '0' + hour
-            else:
-                print('Enter a valid time')
+            elif int(hour) < 0 or int(hour) > 23:
+                print('Enter a valid hour in the range 0-23')
                 return
 
             time_of_day = hour + ':' + min
@@ -69,8 +69,8 @@ class Scheduler:
             elif day == '6':
                 print('Running every Saturday at: ' + time_of_day)
                 schedule.every().saturday.at(time_of_day).do(self.run)
-            else:
-                print('Enter a valid time')
+            elif int(day) < 0 or int(day) > 6:
+                print('Enter a valid day of the week in the range 0-6')
                 return
 
         while True:
