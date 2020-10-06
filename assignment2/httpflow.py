@@ -1,5 +1,4 @@
 import os
-import requests
 import sys
 import yaml
 
@@ -12,7 +11,6 @@ if __name__ == "__main__":
     if os.path.isfile(yaml_file):
         yaml_parser = YamlParser(sys.argv[1])
         scheduler_obj = Scheduler(yaml_parser)
-        scheduler_obj.set_scheduler()
-        scheduler_obj.parse_cron()
+        scheduler_obj.schedule_job()
     else:
         print('Please enter a valid file')
