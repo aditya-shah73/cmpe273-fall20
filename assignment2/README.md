@@ -12,25 +12,25 @@ This is a low-code/no-code HTTP client application that supports these features:
 _Flow Syntax_
 
 ```yaml
-Step:
- id: 1
- type: HTTP_CLIENT
- method: GET
- outbound_url: http://requestbin.com/
- condition:
-  if:
-    equal:
-      left: http.response.code
-      right: 200
-  then:
-    action: print
-    data: http.response.body
-  else:
-    action: print
-    data: "Error"
+Steps:
+ - 1:
+    type: HTTP_CLIENT
+    method: GET
+    outbound_url: https://www.google.com
+    condition:
+      if:
+        equal:
+          left: http.response.code
+          right: 200
+      then:
+        action: ::print
+        data: http.response.headers.content-type
+      else:
+        action: ::print
+        data: "Error"
 
 Scheduler:
-  when: "5 * * * *"
+  when: "1 * *"
   step_id_to_execute: [ 1 ]
 ```
 
@@ -39,15 +39,16 @@ Scheduler:
 ```
 pipenv shell
 pipenv install
-python httpflow.py input.yaml
+python httpflow.py test1.yaml
+python httpflow.py test2.yaml
 ```
 
 ### Expected Output
 
-Print the output in every five minutes.
+Print the output in every minute.
 
 ```
-Response body
+Response Header Content-type
 
 OR
 

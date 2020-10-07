@@ -7,7 +7,7 @@ class Scheduler:
         self.yaml_parser = yaml_parser
 
     def run(self):
-        print('=====================================================================================================================')
+        print('=========================================================================================')
         steps = self.yaml_parser.get_steps()
         schedule = self.yaml_parser.get_scheduler()
         self.yaml_parser.run_steps(steps, schedule['step_id_to_execute'])
@@ -81,7 +81,6 @@ class Scheduler:
 
     def schedule_job(self):
         schedule = self.yaml_parser.get_scheduler()
-        print(schedule)
         cron = schedule['when']
         cron_list = cron.split(" ")
         self.cron_scheduler(cron_list)

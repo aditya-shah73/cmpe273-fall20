@@ -18,7 +18,6 @@ class YamlParser:
 
 
     def print_action(self, data, response):
-        print('Printing the actions')
         if data != 'Error' and 'header' in data:
             header_field = data.split('.')[-1]
             print(data + ' for the request is: ' + response.headers[header_field])
@@ -54,7 +53,7 @@ class YamlParser:
 
 
     def invoke_step(self, step_number, data):
-        print('Invoking a particular step')
+        print('Invoking step:', step_number)
         steps = self.get_steps()
         step = steps[step_number - 1][step_number]
         if (step['type'] == 'HTTP_CLIENT' and 'data' not in step['outbound_url']):
@@ -75,7 +74,6 @@ class YamlParser:
 
 
     def evaluate_condition(self, response, condition):
-        print('Evaluating the conditions')
         if(condition['if']['equal']['left'] == 'http.response.code' and condition['if']['equal']['right'] == response.status_code):
             if('print' in condition['then']['action']):
                 self.print_action(condition['then']['data'], response)
@@ -88,7 +86,6 @@ class YamlParser:
 
 
     def run_steps(self, steps, steps_to_execute):
-        print("Run the steps from the YAML file")
         for i in steps_to_execute:
             step = steps[i - 1][i]
             self.invoke_step(i, step['outbound_url'])
