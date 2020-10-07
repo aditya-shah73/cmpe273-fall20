@@ -9,7 +9,8 @@ class Scheduler:
     def run(self):
         print('=====================================================================================================================')
         steps = self.yaml_parser.get_steps()
-        self.yaml_parser.run_steps(steps)
+        schedule = self.yaml_parser.get_scheduler()
+        self.yaml_parser.run_steps(steps, schedule['step_id_to_execute'])
 
 
     def cron_scheduler(self, cron_list):
@@ -24,7 +25,7 @@ class Scheduler:
                 print('Running every ' + min + ' minutes')
                 schedule.every(int(min)).minutes.do(self.run)
             else:
-                print('Enter a valid minute in the range 0-60')
+                print('Enter a valid minute in the range 0-59')
                 return
         else:
             if min == '*':
@@ -32,7 +33,7 @@ class Scheduler:
             elif int(min) >= 0 and int(min) < 10:
                 min = '0' + min
             elif int(min) < 0 or int(min) > 60:
-                print('Enter a valid minute in the range 0-60')
+                print('Enter a valid minute in the range 0-59')
                 return
 
             if hour == '*':

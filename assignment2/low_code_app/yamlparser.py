@@ -52,7 +52,9 @@ class YamlParser:
             print('##################################')
             return None
 
+
     def invoke_step(self, step_number, data):
+        print('Invoking a particular step')
         steps = self.get_steps()
         step = steps[step_number - 1][step_number]
         if (step['type'] == 'HTTP_CLIENT' and 'data' not in step['outbound_url']):
@@ -65,11 +67,11 @@ class YamlParser:
                 'method' : step['method'],
                 'url' : data
             }
-        print('##############THIS IS INVOKE STEP####################')
-        # print(step)
-        response = self.http_client(config)
-        if response:
-            self.evaluate_condition(response, step['condition'])
+        print('##################################')
+        if 'data' not in config['url']:
+            response = self.http_client(config)
+            if response:
+                self.evaluate_condition(response, step['condition'])
 
 
     def evaluate_condition(self, response, condition):
@@ -85,43 +87,8 @@ class YamlParser:
             self.print_action(condition['else']['data'], response)
 
 
-    def run_steps(self, steps):
+    def run_steps(self, steps, steps_to_execute):
         print("Run the steps from the YAML file")
-        for i in range(len(steps)):
-            step = steps[i][i+1]
-            if step['type'] == 'HTTP_CLIENT':
-                config = {
-                    'method' : step['method'],
-                    'url': step['outbound_url']
-                    }
-            # print(step)
-            print('##################################')
-            if 'data' not in config['url']:
-                response = self.http_client(config)
-                if response:
-                    self.evaluate_condition(response, step['condition'])
-
-
-# import yaml
-# from cerberus import Validator
-#
-# schema = {
-#     'purpose' : {'type' : 'string', 'required' : True},
-#     'urls' : {'type': 'dict', 'schema' : {'files': {'type': 'list', 'schema' : {'type': 'string'}},
-#     'total_urls_needed' : {'type': 'dict', 'schema': {'min': {'type': 'integer'}, 'max': {'type': 'integer'}}}}, 'required' :True },
-#     'users' : {'type': 'dict', 'schema' : {'files': {'type': 'list', 'schema' : {'type': 'string'}},
-#     'total_users_needed' : {'type': 'dict', 'schema':
-
-# class YamlLoader:
-#     def __init__(self, file_location):
-#         self.yaml_obj = []
-#         with open(file_location) as stream:
-#             try:
-#                 for data in yaml.load_all(stream, Loader=yaml.SafeLoader):
-#                     self.yaml_obj.append(data)
-#                 # Validate
-#                 for config in self.yaml_obj:
-#                     v = Validator(schema)
-#                     if not v.validate(config, schema):
-#                         print(v.errors)
-#             except yaml
+        for i in steps_to_execute:
+            step = steps[i - 1][i]
+            self.invoke_step(i, step['outbound_url'])
