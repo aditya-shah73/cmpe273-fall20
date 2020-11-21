@@ -5,64 +5,32 @@ Building a distributed key-value datastore using ZeroMQ as transport protocol.
 [ Node-2 ]
 [ Node-3 ]
 
-### Cluster Adjustment
-
 - Add Node-4
 
 
-- Remove Node-0
-
-## APIs
-
-POST /api/entries
-
-```
-{
-    "key": "foo",
-    "value": "bar"
-}
-```
+- Remove Node-0 
 
 
-GET /api/entries
+_How to launch server cluster_
+
+> Format: python server_consumer.py {num_node}
 
 ```
-[
-    {
-        "key": "foo",
-        "value": "bar"
-    },
-    {
-        "key": "foo2",
-        "value": "bar2"
-    }
-]
+pipenv run python server_consumer.py 4
 ```
 
+_How to run client_
+
+> Format: python client_producer.py {num_node}
+
+```
+pipenv run python client_producer.py 4
+```
 ## Phase 1
+
+The scope of phase 1 is to shard (PUT) the data into a list of servers. No retrieval is required.
 
 ### Consistent hashing
 
-#### Test Case 1
-
-R = 0
-
-Adding and removing one node.
-
-
-#### Test Case 2
-
-R = 2
-
-Adding and removing one node.
-
-
 
 ### HRW hashing
-
-#### Test Case 1
-
-- Adding and removing one node.
-
-
-#### Test Case

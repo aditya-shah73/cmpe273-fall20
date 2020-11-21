@@ -1,8 +1,11 @@
 import zmq
 import time
 import sys
-from itertools import cycle
 from consistent_hashing import ConsistentHashing
+from collections import defaultdict
+from itertools import cycle
+from hrw import HRWHashing
+
 
 def create_clients(servers):
     producers = {}
@@ -12,45 +15,52 @@ def create_clients(servers):
         producer_conn = context.socket(zmq.PUSH)
         producer_conn.bind(server)
         producers[server] = producer_conn
-    # import pdb; pdb.set_trace()
     return producers
     
 
 def generate_data_round_robin(servers):
-    print("Starting...")
     producers = create_clients(servers)
     pool = cycle(producers.values())
+    print("Starting...")
     for num in range(10):
         data = { 'key': f'key-{num}', 'value': f'value-{num}' }
         print(f"Sending data:{data}")
         next(pool).send_json(data)
-        # time.sleep(1)
     print("Done")
 
 
 def generate_data_consistent_hashing(servers):
     consistent_hash = ConsistentHashing(servers)
-    print("Starting...")
     producers = create_clients(servers)
-    from collections import defaultdict
     result = defaultdict(int)
-    for num in range(1000):
+    print("Starting Consistent Hashing...")
+    for num in range(100000):
         data = { 'key': f'key-{num}', 'value': f'value-{num}' }
         print(f"Sending data:{data}")
-        server_to_send = consistent_hash.get_node(f'key-{num}')
+        server_to_send = consistent_hash.get_server(f'key-{num}')
         print(f"on server : {server_to_send}")
         producers[server_to_send].send_json(data)
         result[server_to_send] += 1
-        # time.sleep(0.1)
     print(result)
     print("Done")
 
+
 def generate_data_hrw_hashing(servers):
-    print("Starting...")
-    ## TODO
+    hrw_hash = HRWHashing(servers)
+    producers = create_clients(servers)
+    result = defaultdict(int)
+    print("Starting HRW Hashing...")
+    for num in range(100000):
+        data = { 'key': f'key-{num}', 'value': f'value-{num}' }
+        print(f"Sending data:{data}")
+        server_to_send = hrw_hash.get_server(f'key-{num}')
+        print(f"on server : {server_to_send}")
+        producers[server_to_send].send_json(data)
+        result[server_to_send] += 1
+    print(result)
     print("Done")
-    
-    
+
+
 if __name__ == "__main__":
     servers = []
     num_server = 1
@@ -62,9 +72,8 @@ if __name__ == "__main__":
         server_port = "200{}".format(each_server)
         servers.append(f'tcp://127.0.0.1:{server_port}')
     
-
     print("Servers:", servers)
-    # generate_data_round_robin(servers)
+    generate_data_round_robin(servers)
     generate_data_consistent_hashing(servers)
-    # generate_data_hrw_hashing(servers)
+    generate_data_hrw_hashing(servers)
     
