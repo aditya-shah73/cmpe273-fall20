@@ -10,6 +10,7 @@ def server(port):
     
     while True:
         raw = consumer.recv_json()
+        print(raw)
         key, value = raw['key'], raw['value']
         print(f"Server_port={port}:key={key},value={value}")
         data_store[key] = value

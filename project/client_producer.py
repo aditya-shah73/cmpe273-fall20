@@ -16,6 +16,13 @@ def create_clients(servers):
         producer_conn.bind(server)
         producers[server] = producer_conn
     return producers
+
+# def server_1(port=2000):
+#     context = zmq.Context()
+#     consumer = context.socket(zmq.PULL)
+#     consumer.connect(f"tcp://127.0.0.1:{port}")
+#     print("======================================")
+#     print(data_store)
     
 
 def generate_data_round_robin(servers):
@@ -34,7 +41,7 @@ def generate_data_consistent_hashing(servers):
     producers = create_clients(servers)
     result = defaultdict(int)
     print("Starting Consistent Hashing...")
-    for num in range(100000):
+    for num in range(1000):
         data = { 'key': f'key-{num}', 'value': f'value-{num}' }
         print(f"Sending data:{data}")
         server_to_send = consistent_hash.get_server(f'key-{num}')
@@ -73,7 +80,8 @@ if __name__ == "__main__":
         servers.append(f'tcp://127.0.0.1:{server_port}')
     
     print("Servers:", servers)
-    generate_data_round_robin(servers)
+    # generate_data_round_robin(servers)
     generate_data_consistent_hashing(servers)
-    generate_data_hrw_hashing(servers)
+    server_1()
+    # generate_data_hrw_hashing(servers)
     
