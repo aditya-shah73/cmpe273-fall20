@@ -1,0 +1,10 @@
+[
+{"op": "PUT", "key": "key-8000", "value": "value-8000"},
+{"op": "PUT","key": "key-8002","value": "value-8002"},
+{"ADD": {"name": "server-1995", "address": "127.0.0.1" , "port": "30"}},
+{"op" : "STATS"},
+{"op": "GET_ONE", "key": "key-8000"},
+{"op": "GET_ALL"},
+{"REMOVE": {"name": "server-1995"}}
+]
+
