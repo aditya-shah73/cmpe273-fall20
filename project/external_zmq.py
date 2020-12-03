@@ -1,8 +1,3 @@
-# Read from json file.
-# Send the operations from JSON to producer wala ZMQ 
-# Get response from ZMQ 1 for okay operations
-# If 1, then move to next operation.
-
 import zmq
 import sys
 import json
@@ -24,9 +19,25 @@ def server(port=ENTRY_CLIENT_PORT):
     operations = []
     idx = 0
     while True:
-        # Read operations.
+        
         if idx == 0:
             idx += 1
+            
+            client_sender.send_json({"op":"STATS"})
+            work = client_receiver.recv_json()
+            print(f"Got response {work}")
+            number_of_keys = 10000
+            for num in range(200,number_of_keys):
+                str = {'op': 'PUT', 'key': f'key-{num}', 'value': f'value-{num}'}
+                # print(f"Sending operation -> {str}")
+                print(f"{num}")
+                client_sender.send_json(str)
+                work = client_receiver.recv_json()
+                print(f"Got response {work}")
+            # client_sender.send_json({"op":"STATS"})
+            # work = client_receiver.recv_json()
+            # print(f"Got response {work}")
+
             with open("./data/operations1.txt", "r") as fp: #TODO Hardcode.
                 for json_obj in json.load(fp):
                     print(f"Sending operation -> {json_obj}")

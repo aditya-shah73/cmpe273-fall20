@@ -11,7 +11,7 @@ import pickle
 import zmq
 import copy
 import os
-
+import time 
 from collections import defaultdict
 from server_consumer import Server
 
@@ -66,9 +66,14 @@ class ConsistentHashing:
         print(f"2. Total number of replicas {DEFAULT_REPLICA_FACTOR}")
         print(" DETAILS -----")
         total_keys = 0
+        print("Getting stats.......")
+        time.sleep(2)
         for server, server_path in self.server_to_obj.items():
+            print(f"file size {os.path.getsize(server_path)}")
             with open(server_path, "rb") as fr:
-                server_obj = pickle.load(fr)
+                data = fr.read()
+                server_obj = pickle.loads(data)
+                # server_obj = pickle.load(fr)
                 print(f" NAME - {server_obj.name} Total keys - {len(server_obj.data_store)}")
                 total_keys += len(server_obj.data_store)
         print(f"TOTAL KEYS {total_keys}")
@@ -236,6 +241,31 @@ class ConsistentHashing:
         assert "key" in ret
         return ret 
     
+    def get_all_keys_by_server(self, address, port, name=None):
+        server_pickle_name = f"{address}:{port}"
+        server_obj = None
+        ret = []
+        with open(f"./pickle_data/{server_pickle_name}", "rb") as fp:
+            server_obj = pickle.load(fp)
+            response_from_server = server_obj.get_data()
+            temp_dict = {}
+            for key, value in response_from_server.items():
+                temp_dict["key"], temp_dict["value"] = key, value
+                ret.append(copy.deepcopy(temp_dict))
+                temp_dict.clear()
+        return ret
+                
+    def get_all_keys(self):
+        ret = {}
+        collection = []
+        for server in self.servers:
+            server_pickle_name = server[len("tcp://"):]
+            address, port = server_pickle_name.split(":")
+            assert address == "127.0.0.1"
+            collection.extend(self.get_all_keys_by_server(address, port))
+        ret["collection"] = collection
+        return ret
+
     def get_server(self, key):
         pos = self.__get_server_pos(key)
         if pos is None:
@@ -257,8 +287,8 @@ class ConsistentHashing:
             return pos
 
     def __hash_digest(self, key):
+        # return (int(hashlib.md5(key.encode()).hexdigest(),16)%1000000) / 1000000.0
         return int(hashlib.md5(key.encode()).hexdigest(),16)
-        # return zlib.adler32(str.encode(key)) & 0xffffffff
         # a = hash(str(key).encode())
         # if a < 0:
         #     a = a * -1

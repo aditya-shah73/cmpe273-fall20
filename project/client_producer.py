@@ -70,13 +70,13 @@ def server_producer(port=7071):
     consul_obj = consul.Consul()
 
     # Create baseline for consistent hashing.
-    consistent_hashing = create_baseline(number_of_servers=5, number_of_keys=1000, consul_obj=consul_obj)
+    consistent_hashing = create_baseline(number_of_servers=5, number_of_keys=100, consul_obj=consul_obj)
     #consistent_hashing = ConsistentHashing()
-
+    time.sleep(2)
     while True:
         work = consumer_receiver.recv_json()
         print(f"[server_producer] current operation {work}")
-        time.sleep(1)
+        # time.sleep(2)
         if "op" in work and work["op"] == "PUT":
             assert "key" in work
             assert "value" in work
@@ -85,7 +85,16 @@ def server_producer(port=7071):
             assert "key" in work
             result = consistent_hashing.get_data_by_key(key=work["key"])
         elif "op" in work and work["op"] == "GET_ALL":
-            result = "GET_ALL_RESULT"
+            if len(work) == 1:
+                result = consistent_hashing.get_all_keys()
+            else:
+                assert "name" in work
+                assert "address" in work
+                assert "port" in work
+
+                name, address, port = work["name"], work["address"], work["port"]
+                result = consistent_hashing.get_all_keys_by_server(address=address, port=port, name=name)
+            
         elif "op" in work and work["op"] == "STATS":
             result=consistent_hashing.get_stats()
         elif "ADD" in work:
@@ -93,7 +102,7 @@ def server_producer(port=7071):
             try:
                  # Register node to consul as a service
                 is_registered = consul_obj.agent.service.register(node_data["ADD"]["name"], address=node_data["ADD"]["address"], port=int(node_data["ADD"]["port"]))  
-                time.sleep(80 / 1000.0)
+                time.sleep(40 / 1000.0)
                 if is_registered:
                     # Spawn the server
                     # consul_obj.agent.services()
@@ -134,31 +143,6 @@ def server_producer(port=7071):
 
 if __name__ == "__main__":
     server_producer()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     # servers = []
     # num_server = 1

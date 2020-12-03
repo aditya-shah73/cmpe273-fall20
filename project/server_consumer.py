@@ -20,7 +20,8 @@ class Server:
             # Deserialize 
             server_obj = None
             with open(f"./pickle_data/127.0.0.1:{self.port}", "rb") as fr:
-                server_obj = pickle.load(fr)
+                data = fr.read()
+                server_obj = pickle.loads(data)
                 server_obj.data_store[key] = value
             
             with open(f"./pickle_data/127.0.0.1:{self.port}", "wb") as fp:
