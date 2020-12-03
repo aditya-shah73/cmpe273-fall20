@@ -10,6 +10,7 @@ import zlib
 import pickle
 import zmq
 import copy
+import os
 
 from collections import defaultdict
 from server_consumer import Server
@@ -110,7 +111,7 @@ class ConsistentHashing:
             next_server.remove_data()
             # Reflect that in binary
             with open(next_server_path, "wb") as fp:
-                next_server = pickle.dump(next_server, fp)
+                pickle.dump(next_server, fp)
             
             self._sorted_keys.append(self.__hash_digest(key))
             self._sorted_keys.sort()
@@ -137,13 +138,70 @@ class ConsistentHashing:
                 print("Data not present on next server ..passss....")
         return 1
 
-    def remove_node(self, name, address, port):
-        # Get replicas of the server
-        # Iterate on all the replicas 
-        # Redistribute keys -> Find the next available server and add keys to it (Make sure it is not a replica of the given node)
-        # Send signal to consul to deregister service 
-        # consul_obj.agent.reregister()
-        pass
+    def remove_node(self, name, address, port, replica_factor=None):
+        
+        server_to_be_removed_name = f"tcp://{address}:{port}"
+
+        if replica_factor:
+            current_replica = replica_factor
+        else:
+            current_replica = DEFAULT_REPLICA_FACTOR
+        
+        # Get the server_obj
+        server_to_be_removed_obj = None
+        server_to_be_removed_data = None
+        server_to_be_removed_path = f"./pickled_data/{server_to_be_removed_name}"
+        # Remove prefix tcp://
+        server_to_be_removed_pickled_name = server_to_be_removed_name[len("tcp://"):]
+        with open(f"./pickle_data/{server_to_be_removed_pickled_name}", "rb") as fp:
+            server_to_be_removed_obj = pickle.load(fp)
+            server_to_be_removed_data = copy.deepcopy(server_to_be_removed_obj.get_data())
+        
+        # Remove from the server list.
+        self.servers.remove(server_to_be_removed_name)
+        del self.server_to_obj[server_to_be_removed_name]
+
+        # Remove keys from the server 
+        server_to_be_removed_obj.remove_data()
+        # Reflect that in binary
+        with open(f"./pickle_data/{server_to_be_removed_pickled_name}", "wb") as fp:
+            pickle.dump(server_to_be_removed_obj, fp)
+        
+        # Now, remove replicas
+        for i in range(current_replica):
+            key = '{0}-{1}'.format(server_to_be_removed_name, i)
+            key_hash = self.__hash_digest(key)
+            del self.ring[key_hash]
+            self._sorted_keys.remove(key_hash)
+        self._sorted_keys.sort()
+        
+        if self.replicas and server_to_be_removed_name in self.replicas:
+            del self.replicas[server_to_be_removed_name]
+        
+        # Re-distribute keys
+        if server_to_be_removed_data:
+            for key, value in server_to_be_removed_data.items():
+                new_server_for_data_key = self.get_server(key)
+                    
+                # self.server_to_obj[new_server_for_data_key].add_data(data)
+                server_obj = None
+                # Remove prefix tcp://
+                new_server_for_data_key = new_server_for_data_key[len("tcp://"):]
+                with open(f"./pickle_data/{new_server_for_data_key}", "rb") as fr:
+                    server_obj = pickle.load(fr)
+                    server_obj.add_data({"key":key, "value":value})
+
+                with open(f"./pickle_data/{new_server_for_data_key}", "wb") as fp:
+                    pickle.dump(server_obj, fp)    
+        else:
+            print("Data not present on current server ..passss....")
+
+        # Remove pickled file from pickle_data
+        if os.path.exists(f"./pickle_data/{server_to_be_removed_pickled_name}"):
+            os.remove(f"./pickle_data/{server_to_be_removed_pickled_name}")
+
+        # Everything is done.
+        return 1
 
     def get_server(self, key):
         pos = self.__get_server_pos(key)

@@ -114,18 +114,19 @@ def server_producer(port=7071):
             address = node_data["REMOVE"]["address"]
             port = node_data["REMOVE"]["port"]
             try:
-                 # Register node to consul as a service
-                is_deregistered = consul_obj.agent.service.deregister()
+                # De-register node from consul
+                is_deregistered = consul_obj.agent.service.deregister(name)
                 time.sleep(80 / 1000.0)
-                if is_deregistered:            
+                if is_deregistered:
+                    # Remove the node from the ring and re-distribute the keys.        
                     result = consistent_hashing.remove_node(name, address, port)
                 else:
                     print("[server_producer][REMOVE] Consul de-registration Failed!!!")
             except Exception as e:
                 print("[server_producer][REMOVE] Something went wrong.")         
-            else:
-                pass
-            consumer_sender.send_json(result)
+        else:
+            pass
+        consumer_sender.send_json(result)
 
 
 if __name__ == "__main__":
