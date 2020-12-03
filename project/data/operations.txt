@@ -1,23 +1,4 @@
 [
-{"op":"STATS"}
-]
-
-,
-{"ADD": {"name": "server-1995", "address": "127.0.0.1" , "port": "1001"}},
-{"op":"STATS"},
-{"REMOVE": {"name": "baseline-0", "address": "127.0.0.1" , "port": "3000"}},
-{"op":"STATS"}
-
-
-
-{"ADD": {"name": "server-1995", "address": "127.0.0.1" , "port": "1234"}},
-{"op":"STATS"},
-
-
-
-"""
-
-[
 {"op":"STATS"},
 {"ADD": {"name": "server-1995", "address": "127.0.0.1" , "port": "1234"}},
 {"op":"STATS"},
@@ -39,12 +20,3 @@
 {"op": "GET_ALL", "name": "baseline-3", "address": "127.0.0.1" , "port": "3003"},
 {"op": "GET_ALL"}
 ]
-
-
-
-{"op": "GET_ALL"}
-
-
-
-,
-{"op": "GET_ALL", "name": "baseline-3", "address": "127.0.0.1" , "port": "3003"}

@@ -26,7 +26,7 @@ def server(port=ENTRY_CLIENT_PORT):
             client_sender.send_json({"op":"STATS"})
             work = client_receiver.recv_json()
             print(f"Got response {work}")
-            number_of_keys = 10000
+            number_of_keys = 5000
             for num in range(number_of_keys):
                 str = {'op': 'PUT', 'key': f'key-{num}', 'value': f'value-{num}'}
                 print(f"Sending operation -> {str}")
@@ -35,7 +35,7 @@ def server(port=ENTRY_CLIENT_PORT):
                 work = client_receiver.recv_json()
                 # print(f"Got response {work}")
 
-            with open("./data/operations1.txt", "r") as fp: #TODO Hardcode.
+            with open("./data/operations.txt", "r") as fp:
                 for json_obj in json.load(fp):
                     print(f"Sending operation -> {json_obj}")
                     client_sender.send_json(json_obj)
