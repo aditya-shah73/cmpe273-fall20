@@ -1,5 +1,6 @@
 import zmq
 import sys
+import pickle
 from  multiprocessing import Process
 
 class Server:
@@ -15,17 +16,22 @@ class Server:
         while True:
             raw = consumer.recv_json()
             key, value = raw['key'], raw['value']
-            print(f"Server_port={self.port}:key={key},value={value}")
-            self.data_store[key] = value
-            print(f"server name === {self.name} and data so far {self.data_store}")
+            # print(f"Server_port={self.port}:key={key},value={value}")
+            # Deserialize 
+            server_obj = None
+            with open(f"./pickle_data/127.0.0.1:{self.port}", "rb") as fr:
+                server_obj = pickle.load(fr)
+                server_obj.data_store[key] = value
             
+            with open(f"./pickle_data/127.0.0.1:{self.port}", "wb") as fp:
+                pickle.dump(server_obj, fp)
+                
     def terminate(self):
         self.process.terminate()
 
     def spawn_server(self):
         self.process = Process(target=self.run)
         self.process.start()
-        self.process.join()
     
     def get_data(self):
         return self.data_store

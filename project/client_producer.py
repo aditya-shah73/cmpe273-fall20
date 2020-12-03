@@ -2,6 +2,7 @@ import zmq
 import time
 import sys
 import consul
+import pickle
 from consistent_hashing import ConsistentHashing
 from collections import defaultdict
 from itertools import cycle
@@ -19,53 +20,8 @@ def create_clients(servers):
         producers[server] = producer_conn
     return producers
 
-"""
-def generate_data_round_robin(servers):
-    producers = create_clients(servers)
-    pool = cycle(producers.values())
-    print("Starting...")
-    for num in range(10):
-        data = { 'key': f'key-{num}', 'value': f'value-{num}' }
-        print(f"Sending data:{data}")
-        next(pool).send_json(data)
-    print("Done")
 
-
-def generate_data_consistent_hashing(servers):
-    consistent_hash = ConsistentHashing(servers)
-    producers = create_clients(servers)
-    result = defaultdict(int)
-    print("Starting Consistent Hashing...")
-    for num in range(1000):
-        data = { 'key': f'key-{num}', 'value': f'value-{num}' }
-        print(f"Sending data:{data}")
-        server_to_send = consistent_hash.get_server(f'key-{num}')
-        print(f"on server : {server_to_send}")
-        producers[server_to_send].send_json(data)
-        result[server_to_send] += 1
-    print(result)
-    print("Done")
-
-
-def generate_data_hrw_hashing(servers):
-    hrw_hash = HRWHashing(servers)
-    producers = create_clients(servers)
-    result = defaultdict(int)
-    print("Starting HRW Hashing...")
-    for num in range(100000):
-        data = { 'key': f'key-{num}', 'value': f'value-{num}' }
-        print(f"Sending data:{data}")
-        server_to_send = hrw_hash.get_server(f'key-{num}')
-        print(f"on server : {server_to_send}")
-        producers[server_to_send].send_json(data)
-        result[server_to_send] += 1
-    print(result)
-    print("Done")
-
-"""
-
-
-def create_baseline(number_of_servers, number_of_keys, consul_obj):
+def create_baseline(number_of_servers, number_of_keys, consul_obj):    
     server_to_obj = {}
     servers = []
     # create servers
@@ -74,30 +30,32 @@ def create_baseline(number_of_servers, number_of_keys, consul_obj):
             is_registered = consul_obj.agent.service.register(f"baseline-{i}", address="127.0.0.1", port=int(f"300{i}"))
             time.sleep(80 / 1000.0)
             if is_registered:
-                print(f"Done registering baseline-{i} to consul!")
+                print(f"[IN create_baseline] Done registering baseline-{i} to consul!")
                 s = Server(name=f"baseline-{i}", address="127.0.0.1", port=f"300{i}")
+                # Pickle it 
+                with open(f"./pickle_data/127.0.0.1:300{i}", "wb") as fp:
+                    pickle.dump(s, fp)
                 s.spawn_server()
                 servers.append(s.get_hashable_name())
-                server_to_obj[s.get_hashable_name()] = s
+                server_to_obj[s.get_hashable_name()] = f"./pickle_data/127.0.0.1:300{i}"
             else:
-                print("Consul registration Failed!!!")
+                print("[IN create_baseline] Consul registration Failed!!!")
         except Exception as e:
-            print("Something went wrong. Check if your Consul is up!")
+            print("[IN create_baseline] Something went wrong.")
     
-    producers = create_clients(servers)
     consistent_hashing = ConsistentHashing(servers=servers, server_to_obj=server_to_obj)
     
+    producers = create_clients(servers)
+
     result = defaultdict(int)
     for num in range(number_of_keys):
         data = { 'key': f'key-{num}', 'value': f'value-{num}' }
-        print(f"Sending data:{data}")
         server_to_send = consistent_hashing.get_server(f'key-{num}')
-        print(f"on server : {server_to_send}")
+        print(f"[IN create_baseline] Sending data:{data} on server : {server_to_send}")
         producers[server_to_send].send_json(data)
         result[server_to_send] += 1
     
-    print(result)
-    print("hisadsafdsadff")
+    print(f"[IN create_baseline] STARTING STATS {result}")
     return consistent_hashing
 
 
@@ -113,73 +71,91 @@ def server_producer(port=7071):
 
     # Create baseline for consistent hashing.
     consistent_hashing = create_baseline(number_of_servers=5, number_of_keys=1000, consul_obj=consul_obj)
-    
-    # import pdb;pdb.set_trace()
-    print("hi")
-    # consistent_hashing = ConsistentHashing()
-    
-    
-    # try:
-    #     node_data = {'ADD': {'name': 'server-1995', 'address': '127.0.0.1', 'port': '1234'}}
-    #     is_registered = consul_obj.agent.service.register(node_data["ADD"]["name"], address=node_data["ADD"]["address"], port=1234)  
-    #     if is_registered:
-    #         # Spawn the server
-    #         # consul_obj.agent.services()
-    #         s = Server(name=node_data["ADD"]["name"], address=node_data["ADD"]["address"], port="1234")
-    #         s.spawn_server()
-    #         # This will redistribute the keys too.
-    #         import pdb;pdb.set_trace()
-    #         consistent_hashing.add_node(s)
-    #         print("DONE ADDING!")
-    #     else:
-    #         print("Consul registration Failed!!!")
-    # except Exception as e:
-    #     print("Something went wrong. Check if your Consul is up!")
-
-    # print("Done")
+    #consistent_hashing = ConsistentHashing()
 
     while True:
         work = consumer_receiver.recv_json()
-        print(work)
+        print(f"[server_producer] current operation {work}")
+        time.sleep(2)
         if "op" in work and work["op"] == "PUT":
             result = "PUT_RESULT"
         elif "op" in work and work["op"] == "GET_ONE":
             result = "GET_ONE_RESULT"
         elif "op" in work and work["op"] == "GET_ALL":
             result = "GET_ALL_RESULT"
+        elif "op" in work and work["op"] == "STATS":
+            result=consistent_hashing.get_stats()
         elif "ADD" in work:
             node_data = work
-            # Register node to consul as a service
             try:
-                
+                 # Register node to consul as a service
                 is_registered = consul_obj.agent.service.register(node_data["ADD"]["name"], address=node_data["ADD"]["address"], port=int(node_data["ADD"]["port"]))  
+                time.sleep(80 / 1000.0)
                 if is_registered:
                     # Spawn the server
                     # consul_obj.agent.services()
                     s = Server(name=node_data["ADD"]["name"], address=node_data["ADD"]["address"], port=node_data["ADD"]["port"])
+                    
+                    # Pickle it 
+                    with open(f"./pickle_data/127.0.0.1:{node_data['ADD']['port']}", "wb") as fp:
+                        pickle.dump(s, fp)
+                
                     s.spawn_server()
-                    print(id(s))
-                    import pdb;pdb.set_trace()
-                    # This will redistribute the keys too.
-                    consistent_hashing.add_node(s)
-                    print("DONE ADDING!")
+                    # Adding node in the ring
+                    result = consistent_hashing.add_node(s)
+                    print("[server_producer] DONE ADDING!")
                 else:
-                    print("Consul registration Failed!!!")
+                    print("[server_producer] Consul registration Failed!!!")
             except Exception as e:
-                print("Something went wrong. Check if your Consul is up!")
-
-            result = "ADD_RESULT"
+                print("[server_producer][ADD] Something went wrong.")
         elif "REMOVE" in work:
-            result = "REMOVE_RESULT"
-        elif "STATS" in work:
-            result = "STATS_RESULT"
-        else:
-            pass
-        consumer_sender.send_json(result)
+            node_data = work
+            name = node_data["REMOVE"]["name"]
+            address = node_data["REMOVE"]["address"]
+            port = node_data["REMOVE"]["port"]
+            try:
+                 # Register node to consul as a service
+                is_deregistered = consul_obj.agent.service.deregister()
+                time.sleep(80 / 1000.0)
+                if is_deregistered:            
+                    result = consistent_hashing.remove_node(name, address, port)
+                else:
+                    print("[server_producer][REMOVE] Consul de-registration Failed!!!")
+            except Exception as e:
+                print("[server_producer][REMOVE] Something went wrong.")         
+            else:
+                pass
+            consumer_sender.send_json(result)
 
 
 if __name__ == "__main__":
     server_producer()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     # servers = []
     # num_server = 1
     # if len(sys.argv) > 1:

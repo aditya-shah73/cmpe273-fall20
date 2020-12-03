@@ -1,5 +1,8 @@
 [
+{"op":"STATS"},
 {"ADD": {"name": "server-1995", "address": "127.0.0.1" , "port": "1234"}},
-{"ADD": {"name": "server-1997", "address": "127.0.0.1" , "port": "1235"}}
+{"op":"STATS"},
+{"REMOVE": {"name": "baseline-0", "address": "127.0.0.1" , "port": "3000"}},
+{"op":"STATS"}
 ]
 
