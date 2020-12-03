@@ -8,8 +8,8 @@ import sys
 import json
 from  multiprocessing import Process
 
-PRODUCER_ZMQ_PORT = "7071"
-ENTRY_CLIENT_PORT = "7070"
+ENTRY_CLIENT_PORT = "7001"
+PRODUCER_ZMQ_PORT = "7000"
 def server(port=ENTRY_CLIENT_PORT):
     entry_context = zmq.Context()
 
