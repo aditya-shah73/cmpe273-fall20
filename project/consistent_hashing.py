@@ -203,6 +203,39 @@ class ConsistentHashing:
         # Everything is done.
         return 1
 
+    def put_data(self, data):
+        key, value  = data["key"], data["value"]
+        server_name = self.get_server(key)
+        server_obj = None
+        # Remove prefix tcp://
+        server_pickle_name = server_name[len("tcp://"):]
+        with open(f"./pickle_data/{server_pickle_name}", "rb") as fp:
+            server_obj = pickle.load(fp)
+            server_obj.add_data(data)
+        # Write it 
+        with open(f"./pickle_data/{server_pickle_name}", "wb") as fp:
+            pickle.dump(server_obj, fp)
+        
+        # Make sure it is in the server
+        with open(f"./pickle_data/{server_pickle_name}", "rb") as fp:
+            server_obj = pickle.load(fp)
+            assert key in server_obj.data_store 
+        return 1
+    
+    def get_data_by_key(self, key):
+        server_name = self.get_server(key)
+        server_obj = None
+        ret = {}
+        ret["key"] = key
+        # Remove prefix tcp://
+        server_pickle_name = server_name[len("tcp://"):]
+        with open(f"./pickle_data/{server_pickle_name}", "rb") as fp:
+            server_obj = pickle.load(fp)
+            ret["value"] = server_obj.get_data_by_key(key)
+        assert "value" in ret
+        assert "key" in ret
+        return ret 
+    
     def get_server(self, key):
         pos = self.__get_server_pos(key)
         if pos is None:

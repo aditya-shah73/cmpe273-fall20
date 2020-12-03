@@ -76,11 +76,14 @@ def server_producer(port=7071):
     while True:
         work = consumer_receiver.recv_json()
         print(f"[server_producer] current operation {work}")
-        time.sleep(2)
+        time.sleep(1)
         if "op" in work and work["op"] == "PUT":
-            result = "PUT_RESULT"
+            assert "key" in work
+            assert "value" in work
+            result = consistent_hashing.put_data({"key":work["key"], "value":work["value"]})
         elif "op" in work and work["op"] == "GET_ONE":
-            result = "GET_ONE_RESULT"
+            assert "key" in work
+            result = consistent_hashing.get_data_by_key(key=work["key"])
         elif "op" in work and work["op"] == "GET_ALL":
             result = "GET_ALL_RESULT"
         elif "op" in work and work["op"] == "STATS":

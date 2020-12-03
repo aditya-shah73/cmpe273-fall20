@@ -36,6 +36,9 @@ class Server:
     def get_data(self):
         return self.data_store
     
+    def get_data_by_key(self, key):
+        return self.data_store[key]
+    
     def get_hashable_name(self):
         return f"tcp://{self.address}:{self.port}"
 
@@ -44,6 +47,7 @@ class Server:
     
     def add_data(self, data):
         self.data_store[data["key"]] = data["value"]
+    
 
 # if __name__ == "__main__":
 #     s = Server("name", "127.0.0.1", "4000")
