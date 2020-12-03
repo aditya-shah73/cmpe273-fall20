@@ -69,7 +69,6 @@ class ConsistentHashing:
         print("Getting stats.......")
         time.sleep(2)
         for server, server_path in self.server_to_obj.items():
-            print(f"file size {os.path.getsize(server_path)}")
             with open(server_path, "rb") as fr:
                 data = fr.read()
                 server_obj = pickle.loads(data)
@@ -81,10 +80,6 @@ class ConsistentHashing:
         return 1
 
     def add_node(self, server_obj, replica_factor=None):
-        """
-            consul_obj = consul.Consul() not the utility obj
-            create_clients - Similar to producer
-        """
         # Hash server name and add to ring
         if replica_factor:
             current_replica = replica_factor
@@ -156,7 +151,7 @@ class ConsistentHashing:
         server_to_be_removed_obj = None
         server_to_be_removed_data = None
         server_to_be_removed_path = f"./pickled_data/{server_to_be_removed_name}"
-        # Remove prefix tcp://
+        # Removing the prefix tcp://
         server_to_be_removed_pickled_name = server_to_be_removed_name[len("tcp://"):]
         with open(f"./pickle_data/{server_to_be_removed_pickled_name}", "rb") as fp:
             server_to_be_removed_obj = pickle.load(fp)
@@ -205,14 +200,13 @@ class ConsistentHashing:
         if os.path.exists(f"./pickle_data/{server_to_be_removed_pickled_name}"):
             os.remove(f"./pickle_data/{server_to_be_removed_pickled_name}")
 
-        # Everything is done.
         return 1
 
     def put_data(self, data):
         key, value  = data["key"], data["value"]
         server_name = self.get_server(key)
         server_obj = None
-        # Remove prefix tcp://
+        # Removing the prefix tcp://
         server_pickle_name = server_name[len("tcp://"):]
         with open(f"./pickle_data/{server_pickle_name}", "rb") as fp:
             server_obj = pickle.load(fp)
@@ -232,7 +226,7 @@ class ConsistentHashing:
         server_obj = None
         ret = {}
         ret["key"] = key
-        # Remove prefix tcp://
+        # Removing the prefix tcp://
         server_pickle_name = server_name[len("tcp://"):]
         with open(f"./pickle_data/{server_pickle_name}", "rb") as fp:
             server_obj = pickle.load(fp)
@@ -287,7 +281,6 @@ class ConsistentHashing:
             return pos
 
     def __hash_digest(self, key):
-        # return (int(hashlib.md5(key.encode()).hexdigest(),16)%1000000) / 1000000.0
         return int(hashlib.md5(key.encode()).hexdigest(),16)
         # a = hash(str(key).encode())
         # if a < 0:
@@ -296,9 +289,3 @@ class ConsistentHashing:
 
     def __repr__(self):
         return f"Total number of servers {len(self.servers)}"
-
-# if __name__ == "__main__":
-#     consistent_hashing = ConsistentHashing()
-#     s = Server(name="Aditya", address="127.0.0.1", port="5000")
-#     s.spawn_server()
-#     consistent_hashing.add_node(s)

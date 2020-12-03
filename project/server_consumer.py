@@ -48,18 +48,3 @@ class Server:
     
     def add_data(self, data):
         self.data_store[data["key"]] = data["value"]
-    
-
-# if __name__ == "__main__":
-#     s = Server("name", "127.0.0.1", "4000")
-#     s.spawn_server()
-
-#     num_server = 1
-#     if len(sys.argv) > 1:
-#         num_server = int(sys.argv[1])
-#         print(f"num_server={num_server}")
-        
-#     for each_server in range(num_server):
-#         server_port = "200{}".format(each_server)
-#         print(f"Starting a server at:{server_port}...")
-#         Process(target=server, args=(server_port,)).start()
