@@ -1,4 +1,6 @@
-## For instructions on running Phase 2 of the project, please switch to the branch Phase 2
+## For instructions on running Phase 2 of the project, please switch to the branch phase2
+
+## Phase 1
 
 Building a distributed key-value datastore using ZeroMQ as transport protocol.
 
