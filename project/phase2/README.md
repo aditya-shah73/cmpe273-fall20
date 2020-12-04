@@ -27,6 +27,7 @@ python client_producer.py
 
 To add more operations edit the operations.txt file
 
+## Operations and Functionalities
 
 ### PUT
 
