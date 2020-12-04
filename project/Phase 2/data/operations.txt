@@ -1,0 +1,22 @@
+[
+{"op":"STATS"},
+{"ADD": {"name": "server-1995", "address": "127.0.0.1" , "port": "1234"}},
+{"op":"STATS"},
+{"REMOVE": {"name": "baseline-0", "address": "127.0.0.1" , "port": "3000"}},
+{"op":"STATS"},
+{"op": "PUT", "key": "put-8000", "value": "value-8000"},
+{"op": "PUT", "key": "put-8001", "value": "value-8001"},
+{"op": "PUT", "key": "put-55552", "value": "value-8002"},
+{"op": "PUT", "key": "put-8003", "value": "value-8003"},
+{"op": "PUT", "key": "put-8004", "value": "value-8004"},
+{"op": "PUT", "key": "put-8005", "value": "value-8005"},
+{"op": "PUT", "key": "put-8006", "value": "value-8006"},
+{"op": "PUT", "key": "put-8007", "value": "value-8007"},
+{"op": "PUT", "key": "put-8008", "value": "value-8008"},
+{"op": "PUT", "key": "put-8009", "value": "value-8009"},
+{"op":"STATS"},
+{"op": "GET_ONE", "key": "put-8000"},
+{"op": "GET_ONE", "key": "key-999"},
+{"op": "GET_ALL", "name": "baseline-3", "address": "127.0.0.1" , "port": "3003"},
+{"op": "GET_ALL"}
+]
