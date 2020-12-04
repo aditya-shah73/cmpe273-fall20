@@ -4,6 +4,8 @@ In the phase 2, you will be adding retrieval GET by Id/key and GET all operation
 
 ## Steps to run Phase 2
 
+Results for 5,000 , 10,000 , 50,000 and 100,000 key distribution can be found under the results folder
+
 ```
 pipenv shell
 pipenv install
