@@ -26,7 +26,7 @@ def server(port=ENTRY_CLIENT_PORT):
             client_sender.send_json({"op":"STATS"})
             work = client_receiver.recv_json()
             print(f"Got response {work}")
-            number_of_keys = 5000
+            number_of_keys = 2000
             for num in range(number_of_keys):
                 str = {'op': 'PUT', 'key': f'key-{num}', 'value': f'value-{num}'}
                 print(f"Sending operation -> {str}")
